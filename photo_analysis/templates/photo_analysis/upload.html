@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Caption AI - Professional Image Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --text-color: #1f2937;
+            --light-bg: #f3f4f6;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            padding: 3rem 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .header h1 {
+            font-weight: 800;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            letter-spacing: -0.025em;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .upload-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.2s ease;
+        }
+
+        .upload-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .upload-area {
+            border: 2px dashed var(--accent-color);
+            border-radius: 0.75rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin: 1.5rem 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
+        .upload-area:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .upload-area.highlight {
+            background-color: rgba(59, 130, 246, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            color: var(--text-color);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-upload {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-upload:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .feature {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .feature-text {
+            color: #4b5563;
+            font-size: 0.95rem;
+        }
+
+        .gallery-link {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .gallery-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            background-color: white;
+            box-shadow: var(--card-shadow);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .gallery-link a:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 3rem;
+        }
+
+        .loading-spinner {
+            display: none;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .spinner-border {
+            color: var(--primary-color);
+            width: 2rem;
+            height: 2rem;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 1.5rem;
+            border-radius: 0.75rem;
+            display: none;
+            box-shadow: var(--card-shadow);
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 2rem 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>Photo Caption AI</h1>
+            <p>Transform your photos with AI-powered analysis, creative captions, and mood-based song recommendations</p>
+        </div>
+        
+        <div class="upload-card">
+            <h3 class="mb-4">Upload Your Photo</h3>
+            <form method="post" action="{% if request.path == '/' %}{% url 'upload_image' %}{% endif %}" enctype="multipart/form-data" id="uploadForm">
+                {% csrf_token %}
+                <div class="upload-area" id="uploadArea" role="button" tabindex="0" aria-label="Upload area">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <p class="upload-text">Drag and drop your image here or click to browse</p>
+                    {{ form.image }}
+                </div>
+                <div id="error-message" class="error-message"></div>
+                <img id="imagePreview" class="image-preview" alt="Preview">
+                <div class="loading-spinner" id="loadingSpinner">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing your photo...</p>
+                </div>
+                <button type="submit" class="btn btn-upload" id="submitButton">
+                    <i class="fas fa-magic me-2"></i>Analyze Photo
+                </button>
+            </form>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <i class="fas fa-comment-alt feature-icon"></i>
+                <h5 class="feature-title">AI-Powered Captions</h5>
+                <p class="feature-text">Generate creative and engaging captions for your social media posts</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-tags feature-icon"></i>
+                <h5 class="feature-title">Smart Tagging</h5>
+                <p class="feature-text">Automatically detect and tag relevant elements in your photos</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-music feature-icon"></i>
+                <h5 class="feature-title">Mood-Based Songs</h5>
+                <p class="feature-text">Get personalized song recommendations based on your photo's mood</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-palette feature-icon"></i>
+                <h5 class="feature-title">Color Analysis</h5>
+                <p class="feature-text">Discover the dominant colors and create beautiful color palettes</p>
+            </div>
+        </div>
+        
+        <div class="gallery-link">
+            <a href="{% url 'gallery' %}">
+                <i class="fas fa-images"></i>
+                View Photo Gallery
+            </a>
+        </div>
+    </div>
+    
+    <div class="footer">
+        &copy; 2025 Photo Caption AI - All rights reserved
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Make the entire upload area clickable
+        document.getElementById('uploadArea').addEventListener('click', function() {
+            document.getElementById('id_image').click();
+        });
+        
+        // Handle drag and drop
+        const uploadArea = document.getElementById('uploadArea');
+        const errorMessage = document.getElementById('error-message');
+        const submitButton = document.getElementById('submitButton');
+        const uploadForm = document.getElementById('uploadForm');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight(e) {
+            uploadArea.classList.add('highlight');
+        }
+        
+        function unhighlight(e) {
+            uploadArea.classList.remove('highlight');
+        }
+        
+        uploadArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            const fileInput = document.getElementById('id_image');
+            fileInput.files = files;
+            handleFiles(files);
+        }
+        
+        // Show file name and preview when selected
+        document.getElementById('id_image').addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+        
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    errorMessage.textContent = 'Please select a valid image file (JPEG, PNG, GIF, or WebP)';
+                    errorMessage.style.display = 'block';
+                    submitButton.disabled = true;
+                    return;
+                }
+                
+                // Validate file size (max 5MB)
+                const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+                if (file.size > maxSize) {
+                    errorMessage.textContent = 'File size should be less than 5MB';
+                    errorMessage.style.display = 'block';
+                    submitButton.disabled = true;
+                    return;
+                }
+                
+                // Clear any previous errors
+                errorMessage.style.display = 'none';
+                submitButton.disabled = false;
+                
+                // Update UI
+                document.querySelector('.upload-text').textContent = 'Selected file: ' + file.name;
+                const preview = document.getElementById('imagePreview');
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            }
+        }
+        
+        // Handle form submission
+        uploadForm.addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('id_image');
+            if (!fileInput.files.length) {
+                e.preventDefault();
+                errorMessage.textContent = 'Please select an image file';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // Show loading state
+            document.getElementById('loadingSpinner').style.display = 'block';
+            submitButton.disabled = true;
+        });
+    </script>
+</body>
+</html>

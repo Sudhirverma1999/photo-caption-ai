@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results - Photo Caption AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --text-color: #1f2937;
+            --light-bg: #f3f4f6;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            padding: 2rem;
+        }
+
+        .result-box {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-box h2 {
+            color: var(--primary-color);
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+
+        .image-preview {
+            width: 100%;
+            border-radius: 0.75rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .analysis-section {
+            background: var(--light-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s ease;
+        }
+
+        .analysis-section:hover {
+            transform: translateY(-2px);
+        }
+
+        .analysis-section h4 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .icon-section {
+            color: var(--accent-color);
+        }
+
+        .lead {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            margin: 0.25rem;
+            font-size: 0.9rem;
+            transition: transform 0.2s ease;
+        }
+
+        .tag:hover {
+            transform: translateY(-1px);
+        }
+
+        .copy-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .copy-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .copy-btn:hover .tooltip {
+            opacity: 1;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-secondary {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .result-box {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="result-box">
+            <h2 class="text-center mb-4">Photo Analysis Results</h2>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <img src="{{ image.image.url }}" alt="Uploaded Image" class="image-preview">
+                    
+                    <div class="analysis-section">
+                        <h4><i class="fas fa-music icon-section"></i>Recommended Song</h4>
+                        <p class="lead">{{ song }}</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="analysis-section" id="caption-section">
+                        <h4><i class="fas fa-comment-alt icon-section"></i>AI Caption</h4>
+                        <p class="lead" id="caption-text">{{ caption }}</p>
+                        <button class="copy-btn" id="copy-caption" title="Copy caption">
+                            <i class="fas fa-copy"></i>
+                            <span class="tooltip" id="caption-tooltip">Copied!</span>
+                        </button>
+                    </div>
+                    
+                    <div class="analysis-section" id="tags-section">
+                        <h4><i class="fas fa-tags icon-section"></i>Tags</h4>
+                        <div id="tags-container">
+                            {% for tag in analysis.tags %}
+                                <span class="tag">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                        <button class="copy-btn" id="copy-tags" title="Copy tags">
+                            <i class="fas fa-copy"></i>
+                            <span class="tooltip" id="tags-tooltip">Copied!</span>
+                        </button>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h4><i class="fas fa-smile icon-section"></i>Mood</h4>
+                        <p class="lead">{{ analysis.mood|title }}</p>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h4><i class="fas fa-info-circle icon-section"></i>Image Details</h4>
+                        <p><strong>Dimensions:</strong> {{ analysis.dimensions }}</p>
+                        <p><strong>Aspect Ratio:</strong> {{ analysis.aspect_ratio }}</p>
+                        <p><strong>Orientation:</strong> {{ analysis.orientation|title }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'upload_image' %}" class="btn btn-primary">
+                    <i class="fas fa-magic me-2"></i>Analyze Another Photo
+                </a>
+                <a href="{% url 'gallery' %}" class="btn btn-outline-secondary ms-2">
+                    <i class="fas fa-images me-2"></i>View Gallery
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Copy caption functionality
+        document.getElementById('copy-caption').addEventListener('click', function() {
+            const caption = document.getElementById('caption-text').textContent;
+            navigator.clipboard.writeText(caption).then(() => {
+                const tooltip = document.getElementById('caption-tooltip');
+                tooltip.style.opacity = '1';
+                setTimeout(() => {
+                    tooltip.style.opacity = '0';
+                }, 2000);
+            });
+        });
+
+        // Copy tags functionality
+        document.getElementById('copy-tags').addEventListener('click', function() {
+            const tags = Array.from(document.querySelectorAll('.tag'))
+                .map(tag => tag.textContent)
+                .join(', ');
+            navigator.clipboard.writeText(tags).then(() => {
+                const tooltip = document.getElementById('tags-tooltip');
+                tooltip.style.opacity = '1';
+                setTimeout(() => {
+                    tooltip.style.opacity = '0';
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
